@@ -1,0 +1,19 @@
+version: 2
+references:
+  objectrocket-docker-auth: &objectrocket-docker-auth
+    auth:
+      username: ${DOCKER_USERNAME}
+      password: ${DOCKER_PASSWORD}
+  context-to-use: &context-to-use
+    context: objectrocket-shared
+jobs:
+  test:
+    docker:
+    - <<: *objectrocket-docker-auth
+      image: cimg/python:3.9
+    steps:
+      - checkout
+    - run:
+        name: Install deps
+        command: |
+          pip install -r requirements.txt
