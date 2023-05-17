@@ -13,10 +13,10 @@ jobs:
       image: cimg/python:3.9
     steps:
       - checkout
-    - run:
-        name: Install deps
-        command: |
-          pip install -r requirements.txt
-    - run:
-        name: Install tox
-        command: pip install --upgrade pip tox
+      - run:
+          name: Install deps
+          command: |
+            pip install -r requirements.txt
+      - run:
+          name: Install tox
+          command: pip install --upgrade pip tox
