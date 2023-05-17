@@ -17,3 +17,6 @@ jobs:
         name: Install deps
         command: |
           pip install -r requirements.txt
+    - run:
+        name: Install tox
+        command: pip install --upgrade pip tox
