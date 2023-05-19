@@ -13,6 +13,7 @@ jobs:
       image: cimg/python:3.9
     steps:
       - checkout
+
       - run:
           name: Install deps
           command: |
@@ -124,3 +125,4 @@ workflows:
             - /^[0-9]+.[0-9]+.[0-9]+$/
           branches:
             ignore: /.*/
+
