@@ -13,10 +13,116 @@ jobs:
       image: cimg/python:3.9
     steps:
       - checkout
+
+      - run:
+          name: Install deps
+          command: |
+            pip install -r requirements.txt
+      - run:
+          name: Install tox
+          command: pip install --upgrade pip
+  release_candidate:
+    docker:
+    - <<: *objectrocket-docker-auth
+      image: cimg/python:3.9
+
+    steps:
+    - checkout
+
+    - restore_cache:
+        keys:
+        - v1-tox-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements.txt" }}
     - run:
         name: Install deps
-        command: |
-          pip install -r requirements.txt
+        command: pip install --upgrade pip tox twine
     - run:
-        name: Install tox
-        command: pip install --upgrade pip tox
+        name: Release to pypi develop index
+        command: |
+          export TWINE_REPOSITORY_URL=$TWINE_REPOSITORY_URL_DEVELOP
+          python setup.py clean sdist bdist_wheel
+          twine upload dist/*
+    - save_cache:
+        name: Save cached tox dir
+        key: v1-tox-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements.txt" }}
+        paths:
+        - .tox
+    - store_artifacts:
+        path: ./htmlcov
+  release_prod:
+    docker:
+    - <<: *objectrocket-docker-auth
+      image: cimg/python:3.9
+
+    steps:
+    - checkout
+
+    - restore_cache:
+        keys:
+        - v1-tox-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements.txt" }}
+    - run:
+        name: Install deps
+        command: pip install --upgrade pip twine
+
+    - run:
+        name: Release to pypi production index
+        command: |
+          export TWINE_REPOSITORY_URL=$TWINE_REPOSITORY_URL_PRODUCTION
+          python setup.py clean sdist bdist_wheel
+          twine upload dist/*
+
+    - save_cache:
+        name: Save cached tox dir
+        key: v1-tox-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements.txt" }}
+        paths:
+        - .tox
+
+    - store_artifacts:
+        path: ./htmlcov
+workflows:
+  version: 2
+  test:
+    jobs:
+    - test: *context-to-use
+
+  release_candidate:
+    jobs:
+    - test:
+        <<: *context-to-use
+        filters:
+          tags:
+            only:
+            - /^[0-9]+.[0-9]+.[0-9]+rc[0-9]+$/
+          branches:
+            ignore: /.*/
+    - release_candidate:
+        <<: *context-to-use
+        requires:
+        - test
+        filters:
+          tags:
+            only:
+            - /^[0-9]+.[0-9]+.[0-9]+rc[0-9]+$/
+          branches:
+            ignore: /.*/            
+
+  release_prod:
+    jobs:
+    - test:
+        <<: *context-to-use
+        filters:
+          tags:
+            only:
+            - /^[0-9]+.[0-9]+.[0-9]+$/
+          branches:
+            ignore: /.*/
+    - release_prod:
+        <<: *context-to-use
+        requires:
+        - test
+        filters:
+          tags:
+            only:
+            - /^[0-9]+.[0-9]+.[0-9]+$/
+          branches:
+            ignore: /.*/
+
