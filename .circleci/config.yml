@@ -40,7 +40,7 @@ jobs:
         command: |
           python setup.py clean sdist bdist_wheel
           devpi use $PYPI_INDEX/orv45stg/
-          devpi login PYPI_USER --password PYPI_PASSWORD
+          devpi login $PYPI_USER --password $PYPI_PASSWORD
           devpi upload --from-dir dist
     - save_cache:
         name: Save cached tox dir
@@ -69,7 +69,7 @@ jobs:
         command: |
           python setup.py clean sdist bdist_wheel
           devpi use $PYPI_INDEX/orv45stg/
-          devpi login PYPI_USER --password PYPI_PASSWORD
+          devpi login $PYPI_USER --password $PYPI_PASSWORD
           devpi upload --from-dir dist
 
     - save_cache:
