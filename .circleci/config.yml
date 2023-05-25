@@ -61,14 +61,15 @@ jobs:
         - v1-tox-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements.txt" }}
     - run:
         name: Install deps
-        command: pip install --upgrade pip twine
+        command: pip install --upgrade pip devpi-client==5.2.2
 
     - run:
         name: Release to pypi production index
         command: |
-          export TWINE_REPOSITORY_URL=$TWINE_REPOSITORY_URL_PRODUCTION
           python setup.py clean sdist bdist_wheel
-          twine upload dist/*
+          devpi use $PYPI_INDEX/orv45stg/
+          devpi login PYPI_USER --password PYPI_PASSWORD
+          devpi upload --from-dir dist
 
     - save_cache:
         name: Save cached tox dir
