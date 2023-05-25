@@ -34,7 +34,7 @@ jobs:
         - v1-tox-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements.txt" }}
     - run:
         name: Install deps
-        command: pip install --upgrade pip tox twine
+        command: pip install --upgrade pip devpi-client==5.2.2
     - run:
         name: Release to pypi develop index
         command: |
