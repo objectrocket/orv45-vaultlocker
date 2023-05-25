@@ -38,9 +38,10 @@ jobs:
     - run:
         name: Release to pypi develop index
         command: |
-          export TWINE_REPOSITORY_URL=$TWINE_REPOSITORY_URL_DEVELOP
           python setup.py clean sdist bdist_wheel
-          twine upload dist/*
+          devpi use $PYPI_INDEX/orv45stg/
+          devpi login PYPI_USER --password PYPI_PASSWORD
+          devpi upload --from-dir dist
     - save_cache:
         name: Save cached tox dir
         key: v1-tox-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "requirements.txt" }}
